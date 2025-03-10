@@ -7,11 +7,16 @@ import pickle
 # Título principal de la aplicación
 st.title("📊 Predicción de Ingresos (>50K o ≤50K)")
 
-# Cargar modelo previamente entrenado
+# Cargar el modelo y el escalador previamente entrenados
 def load_model():
     with open("modelo_income.pkl", "rb") as file:
         model = pickle.load(file)
     return model
+
+def load_scaler():
+    with open("scaler_income.pkl", "rb") as file:
+        scaler = pickle.load(file)
+    return scaler
 
 # Preprocesamiento de datos
 def preprocess_data(df):
@@ -31,7 +36,8 @@ def preprocess_data(df):
     hours_labels = ["Tiempo Parcial", "Jornada Normal", "Horas Extras", "Trabajo Extremo"]
     df["hours_category"] = pd.cut(df["hours.per.week"], bins=hours_bins, labels=hours_labels, right=True)
     
-    return df
+    # Devolver el DataFrame procesado sin las categorías
+    return df.drop(columns=["age_category", "hours_category"])
 
 # Barra lateral para la navegación entre páginas
 page = st.sidebar.radio("Menu", ["Introducción", "EDA", "Predicción del Modelo"])
@@ -80,9 +86,15 @@ elif page == "Predicción del Modelo":
         # Preprocesar los datos
         df_processed = preprocess_data(df)
         
-        # Cargar modelo y hacer predicción
+        # Cargar modelo y escalador
         model = load_model()
-        predictions = model.predict(df_processed)
+        scaler = load_scaler()
+
+        # Escalar las características
+        df_scaled = scaler.transform(df_processed)
+        
+        # Hacer predicción
+        predictions = model.predict(df_scaled)
         
         # Mostrar resultados
         df["Predicción"] = [">50K" if p == 1 else "≤50K" for p in predictions]
