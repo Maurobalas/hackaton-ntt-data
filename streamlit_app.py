@@ -11,8 +11,8 @@ import plotly.express as px
 # Cargar modelo y preprocesador
 # ===========================
 
-MODEL_PATH = "modelo_entrenado.pkl"  # Ruta del modelo guardado
-PREPROCESSOR_PATH = "scaler_and_preprocessor.pkl"  # Ruta del preprocesador
+MODEL_PATH = "/Users/mauro/Documents/MIA/HACKATON NTT DATA/hackaton-ntt-data/modelo_entrenado.pkl"  # Ruta del modelo guardado
+PREPROCESSOR_PATH = "/Users/mauro/Documents/MIA/HACKATON NTT DATA/hackaton-ntt-data/scaler_and_preprocessor.pkl"  # Ruta del preprocesador
 
 # Intentar cargar el modelo y el preprocesador
 try:
