@@ -7,15 +7,15 @@ from sklearn.pipeline import Pipeline
 import numpy as np
 
 # Cargar el modelo entrenado y el preprocesador guardado
-model = joblib.load("modelo_entrenado.pkl")  # Modelo guardado
-preprocessor = joblib.load("preprocesador_guardado.pkl")  # Preprocesador guardado
+model = joblib.load("/Users/mauro/Documents/MIA/HACKATON NTT DATA/hackaton-ntt-data/modelo_entrenado.pkl")  # Modelo guardado
+preprocessor = joblib.load("/Users/mauro/Documents/MIA/HACKATON NTT DATA/hackaton-ntt-data/scaler_and_preprocessor.pkl")  # Preprocesador guardado
 
 # Función para cargar el archivo de test
 def cargar_archivo():
     archivo = st.file_uploader("Sube un archivo CSV de test", type=["csv"])
     if archivo is not None:
         # Leer el archivo CSV
-        df_test = pd.read_csv(archivo)
+        df_test = pd.read_csv('/Users/mauro/Documents/MIA/HACKATON NTT DATA/hackaton-ntt-data/dataset.csv')
         return df_test
     return None
 
