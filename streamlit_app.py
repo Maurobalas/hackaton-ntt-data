@@ -10,9 +10,9 @@ from sklearn.pipeline import Pipeline
 # Función para cargar el modelo y el preprocesador
 def load_model_and_preprocessor():
     # Cargar el modelo entrenado
-    model = joblib.load('/Users/mauro/Documents/MIA/HACKATON NTT DATA/hackaton-ntt-data/modelo_entrenado.pkl')  # Reemplaza con la ruta del modelo guardado
+    model = joblib.load('modelo_entrenado.pkl')  # Reemplaza con la ruta del modelo guardado
     # Cargar el preprocesador
-    preprocessor = joblib.load('/Users/mauro/Documents/MIA/HACKATON NTT DATA/hackaton-ntt-data/scaler_and_preprocessor.pkl')  # Reemplaza con la ruta del preprocesador guardado
+    preprocessor = joblib.load('scaler_and_preprocessor.pkl')  # Reemplaza con la ruta del preprocesador guardado
     return model, preprocessor
 
 # Función para limpiar el dataset (reemplazar '?' por NaN)
