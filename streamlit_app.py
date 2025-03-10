@@ -1,71 +1,70 @@
 import streamlit as st
 import pandas as pd
-import joblib
-from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
 import numpy as np
+import joblib
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
 
-# Cargar el modelo entrenado y el preprocesador guardado
-model = joblib.load("modelo_entrenado.pkl")  # Modelo guardado
-preprocessor = joblib.load("preprocesador_guardado.pkl")  # Preprocesador guardado
+# Función para cargar el modelo y el preprocesador
+def load_model_and_preprocessor():
+    # Cargar el modelo entrenado
+    model = joblib.load('/Users/mauro/Documents/MIA/HACKATON NTT DATA/hackaton-ntt-data/modelo_entrenado.pkl')  # Reemplaza con la ruta del modelo guardado
+    # Cargar el preprocesador
+    preprocessor = joblib.load('/Users/mauro/Documents/MIA/HACKATON NTT DATA/hackaton-ntt-data/scaler_and_preprocessor.pkl')  # Reemplaza con la ruta del preprocesador guardado
+    return model, preprocessor
 
-# Función para cargar el archivo de test
-def cargar_archivo():
-    archivo = st.file_uploader("Sube un archivo CSV de test", type=["csv"])
-    if archivo is not None:
-        # Leer el archivo CSV
-        df_test = pd.read_csv(archivo)
-        return df_test
-    return None
+# Función para limpiar el dataset (reemplazar '?' por NaN)
+def clean_data(df):
+    # Reemplazar '?' por NaN
+    df.replace('?', np.nan, inplace=True)
+    return df
 
-# Función para preprocesar los datos (aplicar escalado y codificación)
-def preprocesar_datos(df_test):
-    # Aplicar el preprocesamiento guardado (scaler + onehotencoder)
-    X_test = preprocessor.transform(df_test)
-    return X_test
+# Función para preprocesar los datos
+def preprocess_data(df, preprocessor):
+    # Asegurarse de que las columnas de test coincidan con las del conjunto de entrenamiento
+    df = df[X_train.columns]  # Asegúrate de tener las mismas columnas que X_train
 
-# Función para predecir utilizando el modelo cargado
-def predecir(modelo, X_test):
-    predicciones = modelo.predict(X_test)
-    return predicciones
+    # Aplicar el preprocesamiento al conjunto de datos
+    X_processed = preprocessor.transform(df)
+    return X_processed
 
-# Título de la aplicación
-st.title("Modelo de Clasificación de Ingreso (Streamlit)")
+# Función para hacer predicciones
+def predict(model, preprocessed_data):
+    predictions = model.predict(preprocessed_data)
+    return predictions
 
-# Instrucciones
-st.write("""
-    Esta aplicación permite predecir el ingreso (si es superior o no a 50K) 
-    utilizando el modelo de clasificación entrenado.
-""")
+# Configurar la aplicación de Streamlit
+st.title("Predicción de Ingresos")
 
-# Cargar el archivo de test
-df_test = cargar_archivo()
-
-if df_test is not None:
-    st.write("Datos de Test:")
-    st.write(df_test.head())  # Mostrar las primeras filas del dataset de test
-
-    # Preprocesar los datos de test
-    X_test_preprocesado = preprocesar_datos(df_test)
-
-    # Predecir con el modelo
-    predicciones = predecir(model, X_test_preprocesado)
-
-    # Mostrar las predicciones
-    df_predicciones = pd.DataFrame(predicciones, columns=["Predicción"])
-    st.write("Predicciones:")
-    st.write(df_predicciones)
-
-    # Mostrar predicciones como categorías
-    df_predicciones["Predicción"] = df_predicciones["Predicción"].map({0: "<=50K", 1: ">50K"})
-    st.write("Predicciones como categorías (<=50K o >50K):")
-    st.write(df_predicciones)
+# Subir archivo CSV de test
+uploaded_file = st.file_uploader("Cargar archivo de datos de test", type=["csv"])
+if uploaded_file is not None:
+    # Leer los datos
+    df_test = pd.read_csv(uploaded_file)
     
-    # (Opcional) Puedes exportar las predicciones a un archivo CSV
-    st.download_button(
-        label="Descargar predicciones",
-        data=df_predicciones.to_csv(index=False),
-        file_name="predicciones.csv",
-        mime="text/csv"
-    )
+    # Limpiar los datos
+    df_cleaned = clean_data(df_test)
+    
+    # Cargar el modelo y el preprocesador
+    model, preprocessor = load_model_and_preprocessor()
+    
+    # Preprocesar los datos de test
+    X_test_processed = preprocess_data(df_cleaned, preprocessor)
+    
+    # Hacer las predicciones
+    y_pred = predict(model, X_test_processed)
+    
+    # Mostrar las predicciones
+    st.write("Predicciones de ingresos:")
+    st.write(y_pred)
+    
+    # Si quieres mostrar la predicción en formato de clasificación
+    y_pred_class = ['>50K' if pred == 1 else '<=50K' for pred in y_pred]
+    st.write("Predicción de clase:")
+    st.write(y_pred_class)
+
+    # Mostrar algunas estadísticas
+    st.write("Estadísticas del Dataset de Test")
+    st.write(df_cleaned.describe())
